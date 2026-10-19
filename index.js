@@ -13,17 +13,74 @@ const PRIVATE_APP_ACCESS = process.env.PRIVATE_APP_ACCESS || '';
 const CUSTOM_OBJECT_TYPE = process.env.CUSTOM_OBJECT_TYPE || '';
 const CUSTOM_PROPERTIES = ['name', 'bio', 'habitat'];
 
-// TODO: ROUTE 1 - Create a new app.get route for the homepage to call your custom object data. Pass this data along to the front-end and create a new pug template in the views folder.
+// Route 1: homepage lists garden plant custom object records.
+app.get('/', async (req, res) => {
+    const plantsUrl = `https://api.hubapi.com/crm/v3/objects/${CUSTOM_OBJECT_TYPE}`;
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    };
+    const pageTitle = 'Garden Plants | Integrating With HubSpot I Practicum';
 
-// * Code for Route 1 goes here
+    try {
+        const records = [];
+        let nextUrl = plantsUrl;
+        let params = {
+            properties: CUSTOM_PROPERTIES.join(','),
+            limit: 100
+        };
 
-// TODO: ROUTE 2 - Create a new app.get route for the form to create or update new custom object data. Send this data along in the next route.
+        while (nextUrl) {
+            const resp = await axios.get(nextUrl, { headers, params });
+            records.push(...(resp.data.results || []));
+            nextUrl = resp.data.paging && resp.data.paging.next ? resp.data.paging.next.link : null;
+            params = undefined;
+        }
 
-// * Code for Route 2 goes here
+        res.render('homepage', { title: pageTitle, data: records });
+    } catch (error) {
+        console.error(error.response ? error.response.data : error.message);
+        res.render('homepage', {
+            title: pageTitle,
+            data: [],
+            error: 'Could not load garden plants from HubSpot.'
+        });
+    }
+});
 
-// TODO: ROUTE 3 - Create a new app.post route for the custom objects form to create or update your custom object data. Once executed, redirect the user to the homepage.
+// Route 2: form for a new garden plant record.
+app.get('/update-cobj', (req, res) => {
+    res.render('updates', {
+        title: 'Update Custom Object Form | Integrating With HubSpot I Practicum'
+    });
+});
 
-// * Code for Route 3 goes here
+// Route 3: create the garden plant record, then return to the homepage.
+app.post('/update-cobj', async (req, res) => {
+    const createUrl = `https://api.hubapi.com/crm/v3/objects/${CUSTOM_OBJECT_TYPE}`;
+    const headers = {
+        Authorization: `Bearer ${PRIVATE_APP_ACCESS}`,
+        'Content-Type': 'application/json'
+    };
+    const payload = {
+        properties: {
+            name: req.body.name,
+            bio: req.body.bio,
+            habitat: req.body.habitat
+        }
+    };
+
+    try {
+        await axios.post(createUrl, payload, { headers });
+        res.redirect('/');
+    } catch (error) {
+        console.error(error.response ? error.response.data : error.message);
+        res.status(500).render('updates', {
+            title: 'Update Custom Object Form | Integrating With HubSpot I Practicum',
+            error: 'Could not create the garden plant in HubSpot.'
+        });
+    }
+});
 
 /** 
 * * This is sample code to give you a reference for how you should structure your calls. 
