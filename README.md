@@ -6,7 +6,7 @@ To read the full directions, please go to the [practicum instructions](https://a
 
 The custom object for this practicum is **Garden Plants**. It is associated with contacts and has three string properties: **Name**, **Bio**, and **Habitat**. Name is the primary display property. Three starter records are Monstera Deliciosa, Olive Tree, and English Lavender.
 
-**HubSpot developer test account custom object list:** pending. This link is added after the developer test account and private app are connected. It will use the form `https://app.hubspot.com/contacts/<test-account-id>/objects/<custom-object-id>/views/all/list`.
+**HubSpot developer test account custom object list:** https://app.hubspot.com/contacts/149564708/objects/2-255165079/views/all/list
 
 The private app access token stays in a local `.env` file (`PRIVATE_APP_ACCESS` and `CUSTOM_OBJECT_TYPE`). Copy `.env.example` to `.env`. Do not commit `.env`.
 
