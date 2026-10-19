@@ -1,0 +1,29 @@
+doctype html
+html
+  head
+    title= title
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel="stylesheet", href="/css/style.css")
+  body
+    h1 Garden Plants
+    p
+      a(href="/update-cobj") Add to this table
+    if error
+      p.error= error
+    .table-wrap
+      table
+        thead
+          tr
+            th Name
+            th Bio
+            th Habitat
+        tbody
+          if data && data.length
+            each plant in data
+              tr
+                td= plant.properties.name
+                td= plant.properties.bio
+                td= plant.properties.habitat
+          else
+            tr
+              td(colspan="3") No garden plants yet.
